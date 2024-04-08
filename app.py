@@ -2,7 +2,32 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 from models import (supplier_pydantic, supplier_pydanticIn, Supplier, product_pydanticIn, product_pydantic, Product)
 
+from typing import List, ContextManager
+from fastapi import BackgroundTasks, FastAPI, UploadFile, File, Form
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
+from pydantic import BaseModel, EmailStr
+from starlette.responses import JSONResponse
+from starlette.requests import Request
+
+from dotenv import dotenv_values
+
+credentials = dotenv_values(".env")
+
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+origins = [
+    'http://localhost:3000'
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = origins,
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"]
+)
 
 @app.get('/')
 def index():
@@ -61,7 +86,6 @@ async def specific_product(id: int):
     return {"status": "ok", "data" : response}
 
 
-
 @app.put('/product/{id}')
 async def update_product(id: int, update_info: product_pydanticIn):
     product = await Product.get(id = id)
@@ -70,7 +94,7 @@ async def update_product(id: int, update_info: product_pydanticIn):
     product.quantity_in_stock = update_info['quantity_in_stock']
     product.quantity_sold = update_info['quantity_sold']
     product.unit_price = update_info['unit_price']
-    product.revenue = update_info['quantity_sold'] * update_info['unit_price']
+    product.revenue = (update_info['quantity_sold'] * update_info['unit_price']) + update_info['revenue']
     await product.save()
     response = await product_pydantic.from_tortoise_orm(product)
     return {"status": "ok", "data" : response}
@@ -81,6 +105,51 @@ async def delete_product(id: int):
     return {"status": "ok"}
 
 
+class EmailSchema(BaseModel):
+    email: List[EmailStr]
+
+class EmailContent(BaseModel):
+    message: str
+    subject: str
+
+
+conf = ConnectionConfig(
+    MAIL_USERNAME = credentials['EMAIL'],
+    MAIL_PASSWORD = credentials['PASS'],
+    MAIL_FROM = credentials['EMAIL'],
+    MAIL_PORT = 587,
+    MAIL_SERVER = "smtp.gmail.com",
+    MAIL_STARTTLS = False,
+    MAIL_SSL_TLS = True,
+    USE_CREDENTIALS = True,
+    VALIDATE_CERTS = True
+)
+
+@app.post('/email/{product_id}')
+async def send_Email(product_id: int, content: EmailContent):
+    product = await Product.get(id = product_id)
+    supplier = await product.supplied_by
+    supplier_email = [supplier.email]
+
+
+    html = f"""
+    <h5>Isabelli Marques LTDA</h5> 
+    <br>
+    <p>{content.message}</p>
+
+    <h6>Best Regards</h6>
+    <h6>Isabelli Marques LTDA</h6>
+    """
+
+    message = MessageSchema(
+    subject=content.subject,
+    recipients=supplier_email,
+    body=html,
+    subtype="html")
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+    return {"status":"ok"}   
 
 
 register_tortoise(
