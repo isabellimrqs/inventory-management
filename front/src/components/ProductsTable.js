@@ -3,13 +3,13 @@ import { Table } from 'react-bootstrap';
 import {ProductContext} from '../ProductContext'
 import ProductsRow from './ProductsRow'
 import { useHistory } from 'react-router-dom';
+import { UpdateProductContext } from '../UpdateProductContext';
 
 const ProductsTable = () => {
     const [products, setProducts] = useContext(ProductContext)
+    const [updateProductInfo, setUpdateProductInfo] = useContext(UpdateProductContext)
 
     let history = useHistory()
-
-    
 
     const handleDelete  = (id) => {
         fetch("http://127.0.0.1:8000/product/" + id,{
@@ -33,7 +33,17 @@ const ProductsTable = () => {
     }
 
     const handleUpdate = (id) => {
-        console.log("Hello World")
+        const product = products.data.filter(product => product.id === id)[0]
+        setUpdateProductInfo({
+            ProductName: product.name,
+            QuantityInStock: product.quantity_in_stock,
+            QuantitySold: product.quantity_sold,
+            UnitPrice: product.unit_price,
+            Revenue: product.revenue,
+            ProductId: id
+
+        })
+        history.push("/updateproduct")
         
     }
 
