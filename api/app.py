@@ -105,51 +105,51 @@ async def delete_product(id: int):
     return {"status": "ok"}
 
 
-class EmailSchema(BaseModel):
-    email: List[EmailStr]
+# class EmailSchema(BaseModel):
+#     email: List[EmailStr]
 
-class EmailContent(BaseModel):
-    message: str
-    subject: str
-
-
-conf = ConnectionConfig(
-    MAIL_USERNAME = credentials['EMAIL'],
-    MAIL_PASSWORD = credentials['PASS'],
-    MAIL_FROM = credentials['EMAIL'],
-    MAIL_PORT = 587,
-    MAIL_SERVER = "smtp.gmail.com",
-    MAIL_STARTTLS = False,
-    MAIL_SSL_TLS = True,
-    USE_CREDENTIALS = True,
-    VALIDATE_CERTS = True
-)
-
-@app.post('/email/{product_id}')
-async def send_Email(product_id: int, content: EmailContent):
-    product = await Product.get(id = product_id)
-    supplier = await product.supplied_by
-    supplier_email = [supplier.email]
+# class EmailContent(BaseModel):
+#     message: str
+#     subject: str
 
 
-    html = f"""
-    <h5>Isabelli Marques LTDA</h5> 
-    <br>
-    <p>{content.message}</p>
+# conf = ConnectionConfig(
+#     MAIL_USERNAME = credentials['EMAIL'],
+#     MAIL_PASSWORD = credentials['PASS'],
+#     MAIL_FROM = credentials['EMAIL'],
+#     MAIL_PORT = 587,
+#     MAIL_SERVER = "smtp.gmail.com",
+#     MAIL_STARTTLS = False,
+#     MAIL_SSL_TLS = True,
+#     USE_CREDENTIALS = True,
+#     VALIDATE_CERTS = True
+# )
 
-    <h6>Best Regards</h6>
-    <h6>Isabelli Marques LTDA</h6>
-    """
+# @app.post('/email/{product_id}')
+# async def send_Email(product_id: int, content: EmailContent):
+#     product = await Product.get(id = product_id)
+#     supplier = await product.supplied_by
+#     supplier_email = [supplier.email]
 
-    message = MessageSchema(
-    subject=content.subject,
-    recipients=supplier_email,
-    body=html,
-    subtype="html")
 
-    fm = FastMail(conf)
-    await fm.send_message(message)
-    return {"status":"ok"}   
+#     html = f"""
+#     <h5>Isabelli Marques LTDA</h5> 
+#     <br>
+#     <p>{content.message}</p>
+
+#     <h6>Best Regards</h6>
+#     <h6>Isabelli Marques LTDA</h6>
+#     """
+
+#     message = MessageSchema(
+#     subject=content.subject,
+#     recipients=supplier_email,
+#     body=html,
+#     subtype="html")
+
+#     fm = FastMail(conf)
+#     await fm.send_message(message)
+#     return {"status":"ok"}   
 
 
 register_tortoise(
