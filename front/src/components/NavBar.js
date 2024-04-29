@@ -14,9 +14,11 @@ const NavBar = () => {
 
     const filterProduct = (e) => {
         e.preventDefault()
-        const product = products.data.filter(product => product.name.toLowerCase() === search.toLowerCase())
-        setProducts({"data" : [...product]})
+        const filteredProducts = products.data.filter(product => product.name.toLowerCase().includes(search.toLowerCase()))
+        setProducts({"data" : filteredProducts})
     }
+    
+
 
     return (
         <Navbar bg="dark" expand="lg" variant="dark">

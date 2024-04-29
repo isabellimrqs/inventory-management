@@ -2,7 +2,7 @@ import react, { useContext } from "react";
 import { Form, Button, Card } from "react-bootstrap";
 import { UpdateContext } from "../UpdateProductContext";
 
-const UpdateProduct  = () => {
+ const UpdateProduct  = () => {
     const [updateProductInfo, setUpdateProductInfo] = useContext(UpdateContext)
     
     const updateForm = (e) =>{

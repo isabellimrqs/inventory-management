@@ -1,13 +1,13 @@
-import react, { useContext, useEffect } from 'react'
-import { Table } from 'react-bootstrap';
-import {ProductContext} from '../ProductContext'
+import react, {useEffect, useContext} from 'react'
+import { Table } from 'react-bootstrap'
+import { ProductContext } from '../ProductContext'
+import { UpdateContext } from '../UpdateProductContext'
 import ProductsRow from './ProductsRow'
-import { useHistory } from 'react-router-dom';
-import { UpdateProductContext } from '../UpdateProductContext';
+import {useHistory} from 'react-router-dom'
 
 const ProductsTable = () => {
     const [products, setProducts] = useContext(ProductContext)
-    const [updateProductInfo, setUpdateProductInfo] = useContext(UpdateProductContext)
+    const [updateProductInfo, setUpdateProductInfo] = useContext(UpdateContext)
 
     let history = useHistory()
 
